@@ -1,0 +1,2046 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baccalauréat NSI 2021 - Évaluation Interactive</title>
+
+<!-- CodeMirror 5 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
+
+<!-- PDF generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+:root {
+  --primary: #1a5276;
+  --primary-light: #2980b9;
+  --primary-dark: #0e3a5c;
+  --secondary: #27ae60;
+  --secondary-light: #2ecc71;
+  --accent: #f39c12;
+  --danger: #e74c3c;
+  --bg: #f0f4f8;
+  --card: #ffffff;
+  --text: #2c3e50;
+  --text-light: #7f8c8d;
+  --border: #dce6f0;
+  --success: #27ae60;
+  --warning: #f39c12;
+  --error: #e74c3c;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --radius: 12px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ===== WELCOME SCREEN ===== */
+#welcome-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--secondary) 100%);
+  padding: 20px;
+}
+
+.welcome-card {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 60px 50px;
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  animation: fadeInUp 0.8s ease;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.welcome-card .logo {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 36px;
+}
+
+.welcome-card h1 {
+  font-size: 28px;
+  color: var(--primary-dark);
+  margin-bottom: 8px;
+}
+
+.welcome-card .subtitle {
+  color: var(--text-light);
+  font-size: 16px;
+  margin-bottom: 32px;
+}
+
+.welcome-card .info-box {
+  background: #eaf2f8;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+.welcome-card .info-box h3 {
+  color: var(--primary);
+  font-size: 15px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.welcome-card .info-box ul {
+  list-style: none;
+  padding: 0;
+}
+
+.welcome-card .info-box li {
+  padding: 4px 0;
+  font-size: 14px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.welcome-card .info-box li::before {
+  content: "✓";
+  color: var(--secondary);
+  font-weight: bold;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+  outline: none;
+}
+
+.form-group input:focus {
+  border-color: var(--primary-light);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 32px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  width: 100%;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(26, 82, 118, 0.4);
+}
+
+.btn-secondary {
+  background: var(--secondary);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: var(--secondary-light);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #c0392b;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+}
+
+.btn-outline:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* ===== EXAM SCREEN ===== */
+#exam-screen { display: none; }
+
+.exam-header {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  color: white;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+
+.exam-header .left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.exam-header .student-info {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.timer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.15);
+  padding: 8px 18px;
+  border-radius: 10px;
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 1px;
+}
+
+.timer.warning {
+  background: rgba(231,76,60,0.9);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.timer .icon { font-size: 20px; }
+
+.save-indicator {
+  font-size: 12px;
+  opacity: 0.8;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.save-indicator.saving { color: #f1c40f; }
+.save-indicator.saved { color: #2ecc71; }
+
+/* Tab navigation */
+.tab-nav {
+  background: var(--card);
+  border-bottom: 2px solid var(--border);
+  display: flex;
+  overflow-x: auto;
+  padding: 0 16px;
+  position: sticky;
+  top: 58px;
+  z-index: 99;
+}
+
+.tab-btn {
+  padding: 14px 20px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-light);
+  white-space: nowrap;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.tab-btn:hover {
+  color: var(--primary);
+  background: rgba(26,82,118,0.05);
+}
+
+.tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.tab-btn .tab-points {
+  font-size: 11px;
+  color: var(--secondary);
+  display: block;
+  font-weight: 400;
+}
+
+/* Exercise content */
+.exercise-content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.exercise-panel { display: none; }
+.exercise-panel.active { display: block; }
+
+.exercise-header {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--primary);
+}
+
+.exercise-header h2 {
+  color: var(--primary-dark);
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.exercise-header .exercise-theme {
+  color: var(--text-light);
+  font-size: 14px;
+  font-style: italic;
+}
+
+.context-box {
+  background: #f8f9fa;
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+}
+
+.context-box h3 {
+  color: var(--primary);
+  font-size: 14px;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.context-box p, .context-box ul {
+  font-size: 14px;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 13px;
+}
+
+.data-table th {
+  background: var(--primary);
+  color: white;
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.data-table td {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table tr:nth-child(even) { background: #f8f9fa; }
+.data-table tr:hover { background: #eaf2f8; }
+
+/* Questions */
+.question-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+.question-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.question-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.question-points {
+  background: linear-gradient(135deg, var(--secondary), var(--secondary-light));
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.question-text {
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.question-text code {
+  background: #eaf2f8;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Fira Code', monospace;
+  font-size: 13px;
+  color: var(--primary-dark);
+}
+
+.code-block {
+  background: #2d2d2d;
+  color: #f8f8f2;
+  padding: 16px;
+  border-radius: 8px;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 13px;
+  overflow-x: auto;
+  margin: 12px 0;
+  line-height: 1.6;
+}
+
+/* Answer input */
+.answer-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px 16px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.3s;
+  outline: none;
+  line-height: 1.6;
+}
+
+.answer-textarea:focus {
+  border-color: var(--primary-light);
+}
+
+.code-editor-wrapper {
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+
+.code-editor-wrapper:focus-within {
+  border-color: var(--primary-light);
+}
+
+.CodeMirror {
+  height: auto !important;
+  min-height: 120px;
+  font-size: 14px;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  border-radius: 6px;
+}
+
+/* Submit area */
+.submit-area {
+  text-align: center;
+  padding: 40px 24px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, var(--danger), #c0392b);
+  color: white;
+  padding: 18px 48px;
+  font-size: 18px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(231,76,60,0.3);
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(231,76,60,0.4);
+}
+
+/* ===== RESULTS SCREEN ===== */
+#results-screen { display: none; }
+
+.results-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.results-header {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  color: white;
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 40px rgba(26,82,118,0.3);
+}
+
+.score-display {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.score-number {
+  font-size: 72px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.score-total {
+  font-size: 28px;
+  opacity: 0.8;
+}
+
+.score-percentage {
+  font-size: 18px;
+  opacity: 0.9;
+  margin-bottom: 8px;
+}
+
+.appreciation {
+  font-size: 24px;
+  font-weight: 700;
+  padding: 8px 24px;
+  border-radius: 30px;
+  display: inline-block;
+}
+
+.appreciation.excellent { background: var(--secondary); }
+.appreciation.bien { background: #2980b9; }
+.appreciation.assez-bien { background: #8e44ad; }
+.appreciation.passable { background: var(--accent); }
+.appreciation.insuffisant { background: var(--danger); }
+
+.results-meta {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 16px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.results-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+/* Correction cards */
+.correction-exercise {
+  background: var(--card);
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.correction-exercise-header {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.correction-exercise-header h3 {
+  font-size: 16px;
+}
+
+.correction-exercise-score {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.correction-question {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.correction-question:last-child {
+  border-bottom: none;
+}
+
+.correction-q-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.correction-q-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.correction-q-score {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.correction-q-score.correct { color: var(--success); }
+.correction-q-score.partial { color: var(--warning); }
+.correction-q-score.incorrect { color: var(--error); }
+
+.correction-detail {
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.answer-label {
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.answer-content {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: 'Fira Code', monospace;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.answer-content code {
+  font-family: inherit;
+}
+
+.expected-answer {
+  background: #e8f8f5;
+  border-left: 3px solid var(--secondary);
+  padding: 12px;
+  border-radius: 0 8px 8px 0;
+  font-size: 13px;
+  margin-bottom: 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.explanation {
+  background: #fef9e7;
+  border-left: 3px solid var(--accent);
+  padding: 12px;
+  border-radius: 0 8px 8px 0;
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* ===== WARNING OVERLAY ===== */
+.warning-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(231,76,60,0.95);
+  color: white;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  flex-direction: column;
+  text-align: center;
+  padding: 20px;
+}
+
+.warning-overlay.show { display: flex; }
+
+.warning-overlay .warn-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.warning-overlay h2 {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.warning-overlay p {
+  font-size: 16px;
+  opacity: 0.9;
+  max-width: 500px;
+}
+
+.warning-overlay .btn {
+  margin-top: 24px;
+  background: white;
+  color: var(--danger);
+  font-size: 16px;
+}
+
+/* ===== LOADING OVERLAY ===== */
+.loading-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255,255,255,0.95);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  flex-direction: column;
+  text-align: center;
+}
+
+.loading-overlay.show { display: flex; }
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #bbb; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #999; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .exam-header { flex-direction: column; gap: 8px; }
+  .tab-btn { padding: 10px 14px; font-size: 13px; }
+  .exercise-content { padding: 16px; }
+  .welcome-card { padding: 32px 24px; }
+  .score-number { font-size: 48px; }
+}
+
+/* print styles for PDF */
+@media print {
+  .exam-header, .tab-nav, .submit-area, .results-actions { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- WELCOME SCREEN -->
+<div id="welcome-screen">
+  <div class="welcome-card">
+    <div class="logo">🎓</div>
+    <h1>Baccalauréat NSI 2021</h1>
+    <p class="subtitle">Épreuve pratique - Numérique et Sciences Informatiques</p>
+    <div class="info-box">
+      <h3>📋 Informations de l'examen</h3>
+      <ul>
+        <li>Durée : 3 heures 30 minutes (210 minutes)</li>
+        <li>5 exercices — Total : 20 points</li>
+        <li>Thèmes : SQL, Routage, Python, Arbres, Piles/Files</li>
+        <li>Sauvegarde automatique toutes les 30 secondes</li>
+        <li>Mode plein écran requis (anti-triche)</li>
+      </ul>
+    </div>
+    <div class="form-group">
+      <label for="student-email">Adresse e-mail de l'étudiant</label>
+      <input type="email" id="student-email" placeholder="prenom.nom@etablissement.fr" required>
+    </div>
+    <button class="btn btn-primary" onclick="startExam()">
+      ▶ Commencer l'examen
+    </button>
+  </div>
+</div>
+
+<!-- EXAM SCREEN -->
+<div id="exam-screen">
+  <div class="exam-header">
+    <div class="left">
+      <div>
+        <div style="font-weight:700;font-size:16px;">🎓 Baccalauréat NSI 2021</div>
+        <div class="student-info" id="student-email-display"></div>
+      </div>
+      <div class="save-indicator" id="save-indicator">💾 Sauvegardé</div>
+    </div>
+    <div class="timer" id="timer">
+      <span class="icon">⏱</span>
+      <span id="timer-display">03:30:00</span>
+    </div>
+  </div>
+  <div class="tab-nav" id="tab-nav"></div>
+  <div class="exercise-content" id="exercise-content"></div>
+  <div class="submit-area">
+    <button class="btn btn-submit" onclick="confirmSubmit()">
+      📝 Soumettre ma copie
+    </button>
+    <p style="color:var(--text-light);font-size:13px;margin-top:12px;">Attention : la soumission est définitive</p>
+  </div>
+</div>
+
+<!-- RESULTS SCREEN -->
+<div id="results-screen">
+  <div class="results-container" id="results-container"></div>
+</div>
+
+<!-- WARNING OVERLAY -->
+<div class="warning-overlay" id="warning-overlay">
+  <div class="warn-icon">⚠️</div>
+  <h2>Changement d'onglet détecté !</h2>
+  <p id="warning-message">Toute sortie de l'examen est surveillée. Merci de rester sur cette page.</p>
+  <button class="btn" onclick="dismissWarning()">J'ai compris</button>
+</div>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spinner"></div>
+  <p style="font-weight:600;color:var(--text);">Calcul de la note en cours...</p>
+</div>
+
+<script>
+// ============================================================
+// EXAM DATA
+// ============================================================
+const examData = {
+  exercises: [
+    {
+      id: "ex1",
+      title: "Exercice 1",
+      points: 4,
+      theme: "Bases de données relationnelles et SQL",
+      context: `<p>Un lycée gère son parc informatique avec trois relations : <strong>Ordinateur</strong>, <strong>Videoprojecteur</strong> et <strong>Imprimante</strong>.</p>
+<p><strong>Relation Ordinateur :</strong> Ordinateur(nom_ordi: String, salle: String, marque_ordi: String, modele_ordi: String, annee: Int, video: Boolean)</p>
+
+<p><strong>Extraits de la relation Ordinateur :</strong></p>
+<table class="data-table">
+<tr><th>nom_ordi</th><th>salle</th><th>marque_ordi</th><th>modele_ordi</th><th>annee</th><th>video</th></tr>
+<tr><td>Gen-24</td><td>012</td><td>HP</td><td>compaq pro 6300</td><td>2012</td><td>true</td></tr>
+<tr><td>Tech-62</td><td>114</td><td>Lenovo</td><td>p300</td><td>2015</td><td>true</td></tr>
+<tr><td>Gen-132</td><td>223</td><td>Dell</td><td>Inspiron Compact</td><td>2019</td><td>true</td></tr>
+<tr><td>Gen-133</td><td>223</td><td>Dell</td><td>Inspiron Compact</td><td>2019</td><td>false</td></tr>
+<tr><td>Gen-134</td><td>223</td><td>Dell</td><td>Inspiron Compact</td><td>2019</td><td>false</td></tr>
+</table>
+
+<p><strong>Extraits de la relation Imprimante :</strong></p>
+<table class="data-table">
+<tr><th>nom_imprimante</th><th>marque_imp</th><th>modele_imp</th><th>salle</th><th>nom_ordi</th></tr>
+<tr><td>imp_BTS_NB</td><td>HP</td><td>Laserjet pro M15w</td><td>114</td><td>Tech-62</td></tr>
+<tr><td>imp_BTS_Couleur</td><td>Canon</td><td>Megatank Pixma G5050</td><td>114</td><td>Tech-62</td></tr>
+<tr><td>imp_salle-info1</td><td>Brother</td><td>2360DN</td><td>223</td><td>Gen-132</td></tr>
+<tr><td>imp_salle-info1</td><td>Brother</td><td>2360DN</td><td>223</td><td>Gen-133</td></tr>
+<tr><td>imp_salle-info1</td><td>Brother</td><td>2360DN</td><td>223</td><td>Gen-134</td></tr>
+</table>
+
+<p><strong>Extraits de la relation Videoprojecteur :</strong></p>
+<table class="data-table">
+<tr><th>salle</th><th>marque_video</th><th>modele_video</th><th>tni</th></tr>
+<tr><td>012</td><td>Epson</td><td>xb27</td><td>true</td></tr>
+<tr><td>114</td><td>Sanyo</td><td>PLV-Z3</td><td>false</td></tr>
+<tr><td>223</td><td>Optoma</td><td>HD143X</td><td>false</td></tr>
+<tr><td>225</td><td>Optoma</td><td>HD143X</td><td>true</td></tr>
+</table>`,
+      questions: [
+        {
+          id: "q1a",
+          title: "Question 1a",
+          points: 0.5,
+          type: "text",
+          text: `À l'aide d'un système de gestion de base de données, on envoie au serveur la requête SQL suivante :<br><br><div class="code-block">SELECT salle, marque_ordi FROM Ordinateur;</div><br>Quel résultat produit cette requête sur l'extrait de la relation Ordinateur donné ci-dessus ?`,
+          expectedKeywords: ["012", "HP", "114", "Lenovo", "223", "Dell"],
+          expectedAnswer: "La requête renvoie 5 lignes avec les colonnes salle et marque_ordi :\n012 | HP\n114 | Lenovo\n223 | Dell\n223 | Dell\n223 | Dell",
+          explanation: "Le SELECT extrait les colonnes salle et marque_ordi pour chaque tuple de la relation Ordinateur."
+        },
+        {
+          id: "q1b",
+          title: "Question 1b",
+          points: 0.5,
+          type: "text",
+          text: `Quel résultat produit la requête suivante sur l'extrait de la relation Ordinateur ?<br><br><div class="code-block">SELECT nom_ordi, salle FROM Ordinateur WHERE video = true;</div>`,
+          expectedKeywords: ["Gen-24", "012", "Tech-62", "114", "Gen-132", "223"],
+          expectedAnswer: "3 lignes :\nGen-24 | 012\nTech-62 | 114\nGen-132 | 223",
+          explanation: "La clause WHERE filtre sur video = true, seuls 3 ordinateurs ont un vidéoprojecteur connecté."
+        },
+        {
+          id: "q2",
+          title: "Question 2",
+          points: 0.5,
+          type: "code",
+          mode: "sql",
+          placeholder: "SELECT ... FROM ... WHERE ...",
+          text: `Écrire une requête SQL donnant tous les attributs des ordinateurs correspondant aux années <strong>supérieures ou égales à 2017</strong>, ordonnées par dates croissantes.`,
+          expectedKeywords: ["SELECT", "*", "FROM", "Ordinateur", "annee", ">=", "2017", "ORDER", "BY"],
+          expectedAnswer: "SELECT * FROM Ordinateur WHERE annee >= 2017 ORDER BY annee;",
+          explanation: "On utilise WHERE pour filtrer sur annee >= 2017 et ORDER BY annee pour le tri croissant."
+        },
+        {
+          id: "q3a",
+          title: "Question 3a",
+          points: 0.5,
+          type: "text",
+          text: `Pour quelle raison l'attribut <code>salle</code> ne peut-il pas être une <strong>clé primaire</strong> pour la relation Ordinateur ?`,
+          expectedKeywords: ["plusieurs", "même", "salle", "répét", "dupliqu", "unique", "223"],
+          expectedAnswer: "La salle 223 contient plusieurs ordinateurs (Gen-132, Gen-133, Gen-134), donc l'attribut salle n'est pas unique. Une clé primaire doit identifier chaque tuple de manière unique.",
+          explanation: "Une clé primaire doit avoir une valeur unique par tuple. La salle 223 apparaît 3 fois, elle ne peut donc pas être clé primaire."
+        },
+        {
+          id: "q3b",
+          title: "Question 3b",
+          points: 0.75,
+          type: "code",
+          mode: "sql",
+          placeholder: "Relation(...)",
+          text: `On prend <code>(nom_imprimante, nom_ordi)</code> comme clé primaire de la relation Imprimante.<br>Écrire le <strong>schéma relationnel</strong> de la relation Imprimante en précisant les éventuelles <strong>clés étrangères</strong> pour les autres relations.<br><br><em>Format attendu : NomRelation(attr1: Type, attr2: Type, ..., #cle_etrangere: Type)</em>`,
+          expectedKeywords: ["Imprimante", "nom_imprimante", "String", "marque_imp", "modele_imp", "salle", "#nom_ordi"],
+          expectedAnswer: "Imprimante(nom_imprimante: String, marque_imp: String, modele_imp: String, salle: String, #nom_ordi: String)",
+          explanation: "Le # devant nom_ordi indique qu'il s'agit d'une clé étrangère référençant la relation Ordinateur."
+        },
+        {
+          id: "q4a",
+          title: "Question 4a",
+          points: 0.5,
+          type: "code",
+          mode: "sql",
+          placeholder: "INSERT INTO ...",
+          text: `Écrire une requête SQL permettant d'ajouter à la relation Videoprojecteur un <strong>nouveau vidéoprojecteur</strong> installé en salle 315, de marque <strong>NEC</strong>, de modèle <strong>ME402X</strong> et <strong>non relié à un TNI</strong>.`,
+          expectedKeywords: ["INSERT", "INTO", "Videoprojecteur", "315", "NEC", "ME402X", "false", "VALUES"],
+          expectedAnswer: "INSERT INTO Videoprojecteur (salle, marque_video, modele_video, tni) VALUES ('315', 'NEC', 'ME402X', false);",
+          explanation: "On utilise INSERT INTO avec VALUES pour ajouter un nouveau tuple. Le TNI est false car non relié."
+        },
+        {
+          id: "q4b",
+          title: "Question 4b",
+          points: 0.75,
+          type: "code",
+          mode: "sql",
+          placeholder: "SELECT ... FROM ... JOIN ...",
+          text: `Écrire une requête SQL permettant de récupérer les attributs <code>salle</code>, <code>nom_ordi</code>, <code>marque_video</code> des ordinateurs connectés à un vidéoprojecteur <strong>équipé d'un TNI</strong>.`,
+          expectedKeywords: ["SELECT", "salle", "nom_ordi", "marque_video", "FROM", "Ordinateur", "JOIN", "Videoprojecteur", "video", "true", "tni", "true"],
+          expectedAnswer: "SELECT Ordinateur.salle, Ordinateur.nom_ordi, Videoprojecteur.marque_video FROM Ordinateur INNER JOIN Videoprojecteur ON Videoprojecteur.salle = Ordinateur.salle WHERE Ordinateur.video = true AND Videoprojecteur.tni = true;",
+          explanation: "Il faut faire une jointure entre Ordinateur et Videoprojecteur sur la salle, avec les conditions video=true et tni=true."
+        }
+      ]
+    },
+    {
+      id: "ex2",
+      title: "Exercice 2",
+      points: 4,
+      theme: "Routage, processus et systèmes sur puces",
+      context: `<p>Un constructeur automobile dispose d'ordinateurs sur lesquels sont installées diverses applications : un <strong>traitement de texte</strong>, un <strong>tableur</strong>, un <strong>SGBD</strong> et un logiciel de <strong>CAO</strong> (Conception Assistée par Ordinateur).</p>
+<p>Ce constructeur intègre à ses véhicules des <strong>systèmes embarqués</strong> (GPS, ABS…) utilisant des systèmes sur puces (SoC).</p>
+
+<p><strong>Tableau des ressources (D1 à D5) :</strong></p>
+<table class="data-table">
+<tr><th></th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5</th></tr>
+<tr><td>Traitement de texte</td><td>M</td><td>A</td><td>-</td><td>-</td><td>-</td></tr>
+<tr><td>Tableur</td><td>A</td><td>-</td><td>-</td><td>-</td><td>M</td></tr>
+<tr><td>SGBD</td><td>-</td><td>M</td><td>A</td><td>A</td><td>-</td></tr>
+<tr><td>CAO</td><td>-</td><td>-</td><td>A</td><td>M</td><td>A</td></tr>
+</table>
+<p style="font-size:12px;color:var(--text-light);">M = Master (alloué), A = Acquisition (en attente), - = Non demandé</p>
+
+<p><strong>Tables de routage :</strong></p>
+<table class="data-table">
+<tr><th>Routeur A</th><th>Passerelle</th></tr>
+<tr><td>Dest B</td><td>B</td></tr>
+<tr><td>Dest C</td><td>C</td></tr>
+<tr><td>Dest D</td><td>C</td></tr>
+<tr><td>Dest E</td><td>B</td></tr>
+<tr><td>Dest F</td><td>B</td></tr>
+</table>
+<table class="data-table">
+<tr><th>Routeur B</th><th>Passerelle</th></tr>
+<tr><td>Dest A</td><td>A</td></tr>
+<tr><td>Dest C</td><td>C</td></tr>
+<tr><td>Dest D</td><td>C</td></tr>
+<tr><td>Dest E</td><td>E</td></tr>
+<tr><td>Dest F</td><td>E</td></tr>
+</table>
+<table class="data-table">
+<tr><th>Routeur E</th><th>Passerelle</th></tr>
+<tr><td>Dest A</td><td>B</td></tr>
+<tr><td>Dest B</td><td>B</td></tr>
+<tr><td>Dest C</td><td>B</td></tr>
+<tr><td>Dest D</td><td>D</td></tr>
+<tr><td>Dest F</td><td>F</td></tr>
+</table>`,
+      questions: [
+        {
+          id: "q2_1",
+          title: "Question 1",
+          points: 1,
+          type: "text",
+          text: `Ce constructeur automobile intègre à ses véhicules des <strong>systèmes embarqués</strong> (GPS, ABS…) utilisant des <strong>systèmes sur puces (SoC)</strong>.<br><br>Citer <strong>deux avantages</strong> à utiliser ces systèmes sur puces plutôt qu'une architecture classique d'ordinateur.`,
+          expectedKeywords: ["consommation", "énergie", "faible", "miniaturis", "coût", "réduit", "taille", "compact", "performance", "intégr", "fiabilité", "dissipation"],
+          expectedAnswer: "Deux avantages parmi :\n1. Consommation d'énergie réduite\n2. Miniaturisation / taille réduite\n3. Coût réduit\n4. Meilleure intégration\n5. Fiabilité accrue\n6. Faible dissipation thermique",
+          explanation: "Les SoC sont compacts, économes en énergie, peu coûteux et fiables, ce qui est essentiel pour les systèmes embarqués automobiles."
+        },
+        {
+          id: "q2_2",
+          title: "Question 2",
+          points: 1,
+          type: "text",
+          text: `En observant le tableau des ressources, montrer que les applications <strong>s'attendent mutuellement</strong>.<br><br>Comment s'appelle cette situation ?`,
+          expectedKeywords: ["interblocage", "deadlock", "attendent", "mutuellement", "D2", "D3", "D4", "D5", "D1", "cycle", "circulaire"],
+          expectedAnswer: "Situation d'interblocage (deadlock) :\n- Le SGBD (M sur D2) attend que le Traitement de texte libère D2\n- Le Traitement de texte (M sur D1) attend que le Tableur libère D1\n- Le Tableur (M sur D5) attend que la CAO libère D5\n- La CAO (M sur D4) attend que le SGBD libère D4\n→ Il y a un cycle circulaire d'attente → interblocage.",
+          explanation: "Il s'agit d'un interblocage (deadlock) : chaque processus détient une ressource et attend une ressource détenue par un autre, formant un cycle."
+        },
+        {
+          id: "q2_3",
+          title: "Question 3",
+          points: 1,
+          type: "text",
+          text: `En utilisant les tables de routage ci-dessus, déterminer le <strong>chemin emprunté</strong> par un paquet de données envoyé du <strong>routeur A vers le routeur F</strong>.`,
+          expectedKeywords: ["A", "B", "E", "F"],
+          expectedAnswer: "Chemin : A → B → E → F\n\nDétail :\n- A veut envoyer vers F → table A dit : passerelle B\n- B reçoit le paquet pour F → table B dit : passerelle E\n- E reçoit le paquet pour F → table E dit : passerelle F\n- F est atteint.",
+          explanation: "Le routage se fait par saut successif : A→B (passerelle pour F), B→E (passerelle pour F), E→F (passerelle directe)."
+        },
+        {
+          id: "q2_4",
+          title: "Question 4",
+          points: 1,
+          type: "text",
+          text: `Représenter le <strong>réseau de routeurs</strong> en traçant les liaisons entre les routeurs.<br><br><em>Décrivez les connexions entre les routeurs sous forme textuelle.</em>`,
+          expectedKeywords: ["A-B", "B-C", "B-E", "C-D", "D-F", "E-F"],
+          expectedAnswer: "Connexions déduites des tables de routage :\n- A ↔ B\n- B ↔ C\n- B ↔ E\n- C ↔ D\n- D ↔ F\n- E ↔ F\n- A ↔ C (table A: dest C → C)\n- E ↔ D (table E: dest D → D)\n\nLe réseau forme un graphe connecté.",
+          explanation: "Les tables de routage permettent de déduire les liaisons directes entre routeurs voisins."
+        }
+      ]
+    },
+    {
+      id: "ex3",
+      title: "Exercice 3",
+      points: 4,
+      theme: "Tableaux et programmation Python",
+      context: `<p>Un site de vente de vêtements en ligne gère le panier d'achat de ses clients à l'aide d'un <strong>tableau</strong> contenant les prix des articles sélectionnés.</p>
+
+<div class="code-block">tab = [30.5, 15.0, 6.0, 20.0, 5.0, 35.0, 10.5]</div>
+
+<p><strong>Promotions :</strong></p>
+<ul>
+<li><strong>Offre de bienvenue</strong> : 20% de réduction sur le 1er article, 30% sur le 2ème article, 0% sur le reste</li>
+<li><strong>Offre bon client</strong> : à partir de 2 articles, l'article le moins cher est offert</li>
+<li><strong>Promo de déstockage</strong> : réduction globale de 50% si ≥5 articles, 40% si 4, 30% si 3, 20% si 2, 10% si 1</li>
+</ul>`,
+      questions: [
+        {
+          id: "q3_1a",
+          title: "Question 1a",
+          points: 0.25,
+          type: "code",
+          mode: "python",
+          placeholder: "def total_hors_reduction(tab):",
+          text: `Écrire une fonction Python <code>total_hors_reduction</code> ayant pour argument le tableau des prix des articles du panier d'un client et renvoyant le <strong>total des prix</strong> de ces articles.`,
+          expectedKeywords: ["def", "total_hors_reduction", "tab", "return", "sum", "for", "total", "+"],
+          expectedAnswer: "def total_hors_reduction(tab):\n    return sum(tab)\n\n# ou avec une boucle :\n# def total_hors_reduction(tab):\n#     total = 0\n#     for prix in tab:\n#         total += prix\n#     return total",
+          explanation: "La fonction sum() de Python renvoie la somme des éléments d'un tableau."
+        },
+        {
+          id: "q3_1b",
+          title: "Question 1b",
+          points: 0.75,
+          type: "code",
+          mode: "python",
+          placeholder: "def offre_bienvenue(tab):",
+          text: `Compléter la fonction <code>offre_bienvenue</code> : 20% de réduction sur le 1er article, 30% sur le 2ème article, 0% sur le reste.<br><br><div class="code-block">def offre_bienvenue(tab):\n    somme = 0\n    longueur = len(tab)\n    if longueur > 0:\n        somme = tab[0] * ...\n    if longueur > 1:\n        somme = somme + ...\n    if longueur > 2:\n        for i in range(2, longueur):\n            somme = ...\n    return ...</div>`,
+          expectedKeywords: ["0.8", "0.7", "tab[1]", "somme+tab[i]", "somme", "return"],
+          expectedAnswer: "0.8  (pour la ligne somme = tab[0] * 0.8)\ntab[1] * 0.7  (pour la ligne somme = somme + tab[1] * 0.7)\nsomme + tab[i]  (pour la boucle)\nsomme  (pour le return)",
+          explanation: "20% de réduction → multiplier par 0.8. 30% de réduction → multiplier par 0.7. Les autres articles sont au prix plein."
+        },
+        {
+          id: "q3_2",
+          title: "Question 2",
+          points: 0.75,
+          type: "code",
+          mode: "python",
+          placeholder: "def prix_solde(tab):",
+          text: `Proposer une fonction Python <code>prix_solde</code> qui applique la réduction de <strong>déstockage</strong> :<br>• ≥5 articles → 50%<br>• 4 articles → 40%<br>• 3 articles → 30%<br>• 2 articles → 20%<br>• 1 article → 10%`,
+          expectedKeywords: ["def", "prix_solde", "tab", "len", "0.9", "0.8", "0.7", "0.6", "0.5", "return", "total_hors_reduction", "min"],
+          expectedAnswer: "def prix_solde(tab):\n    n = len(tab)\n    total = total_hors_reduction(tab)\n    if n >= 5:\n        return total * 0.5\n    elif n == 4:\n        return total * 0.6\n    elif n == 3:\n        return total * 0.7\n    elif n == 2:\n        return total * 0.8\n    elif n == 1:\n        return total * 0.9\n    return 0",
+          explanation: "On utilise des conditions (if/elif) pour appliquer le taux de réduction correspondant au nombre d'articles."
+        },
+        {
+          id: "q3_3a",
+          title: "Question 3a",
+          points: 0.25,
+          type: "code",
+          mode: "python",
+          placeholder: "def minimum(tab):",
+          text: `Écrire une fonction Python <code>minimum</code> qui prend un tableau <code>tab</code> en argument et renvoie la <strong>valeur minimum</strong> du tableau.`,
+          expectedKeywords: ["def", "minimum", "tab", "return", "min", "for", "if", "<"],
+          expectedAnswer: "def minimum(tab):\n    return min(tab)\n\n# ou avec une boucle :\n# def minimum(tab):\n#     m = tab[0]\n#     for i in range(1, len(tab)):\n#         if tab[i] < m:\n#             m = tab[i]\n#     return m",
+          explanation: "Python propose la fonction built-in min(), mais on peut aussi parcourir le tableau manuellement."
+        },
+        {
+          id: "q3_3b",
+          title: "Question 3b",
+          points: 0.5,
+          type: "code",
+          mode: "python",
+          placeholder: "def offre_bon_client(tab):",
+          text: `Écrire une fonction Python <code>offre_bon_client</code> qui renvoie le prix du panier avec l'offre bon client : <strong>à partir de 2 articles, l'article le moins cher est offert</strong>.`,
+          expectedKeywords: ["def", "offre_bon_client", "tab", "total_hors_reduction", "minimum", "return", "-", "len", ">="],
+          expectedAnswer: "def offre_bon_client(tab):\n    if len(tab) >= 2:\n        return total_hors_reduction(tab) - minimum(tab)\n    return total_hors_reduction(tab)",
+          explanation: "On soustrait le prix minimum du total si le panier contient au moins 2 articles."
+        },
+        {
+          id: "q3_4a",
+          title: "Question 4a",
+          points: 0.25,
+          type: "text",
+          text: `Proposer un panier contenant les <strong>mêmes articles</strong> que l'exemple <code>[30.5, 15.0, 6.0, 20.0, 5.0, 35.0, 10.5]</code> mais ayant un prix après promotion de déstockage <strong>différent de 111 euros</strong>.<br><br><em>Indication : réfléchissez à l'ordre des articles dans le panier.</em>`,
+          expectedKeywords: ["30.5", "15", "6", "20", "5", "35", "10.5"],
+          expectedAnswer: "Tout panier avec les mêmes articles dans un ordre différent.\nExemple : [5.0, 30.5, 10.5, 15.0, 35.0, 6.0, 20.0]\n\nLe total hors réduction est toujours le même (122€), mais selon l'offre appliquée, le résultat diffère.",
+          explanation: "Le prix après promo dépend de l'offre choisie et de l'ordre des articles. Tout ordre différent des articles donne un résultat potentiellement différent."
+        },
+        {
+          id: "q3_4b",
+          title: "Question 4b",
+          points: 0.25,
+          type: "text",
+          text: `Proposer un panier contenant les <strong>mêmes articles</strong> mais ayant le prix après promotion de déstockage <strong>le plus bas possible</strong>.`,
+          expectedKeywords: ["35", "30.5", "20", "15", "10.5", "6", "5", "décroissant", "tri", "ordre"],
+          expectedAnswer: "Panier trié par ordre décroissant :\n[35.0, 30.5, 20.0, 15.0, 10.5, 6.0, 5.0]\n\nPrix après promo : 122 × 0.5 = 61€ (50% car ≥5 articles)",
+          explanation: "La promo de déstockage dépend du nombre d'articles, pas de leur ordre. Avec 7 articles, on obtient toujours 50% de réduction → 61€."
+        },
+        {
+          id: "q3_4c",
+          title: "Question 4c",
+          points: 1,
+          type: "text",
+          text: `Quel <strong>algorithme</strong> le client peut-il utiliser pour obtenir le prix le plus bas après toutes les promotions ?<br><br><em>Ne pas écrire l'algorithme, juste le nommer et l'expliquer.</em>`,
+          expectedKeywords: ["tri", "décroissant", "ordre", "sélection", "insertion", "fusion", "bulle"],
+          expectedAnswer: "Le client peut utiliser un algorithme de tri (tri par sélection, tri par insertion, tri fusion, tri à bulles…) pour classer les articles dans l'ordre décroissant. Ensuite, il compare les différentes promotions (bienvenue, bon client, déstockage) pour choisir la plus avantageuse.",
+          explanation: "Trier le panier permet d'optimiser le résultat de certaines promotions. L'algorithme de tri le plus adapté dépend de la taille du panier."
+        }
+      ]
+    },
+    {
+      id: "ex4",
+      title: "Exercice 4",
+      points: 4,
+      theme: "Arbres binaires",
+      context: `<p>Une fédération de badminton organise un tournoi. L'arbre de compétition est modélisé par un <strong>arbre binaire</strong> où chaque nœud contient le nom du vainqueur du match correspondant.</p>
+
+<p><strong>Arbre B :</strong></p>
+<pre style="background:#f0f4f8;padding:16px;border-radius:8px;font-size:13px;line-height:1.6;overflow-x:auto;">
+                      "Lea"
+                   /         \\
+                "Lea"         "Louis"
+               /     \\       /       \\
+            "Lea"  "Theo"  "Louis"   "Anne"
+           /    \\   /    \\   /     \\    /    \\
+        "Marc" "Lea" "Claire" "Theo" "Marie" "Louis" "Anne" "Kevin"
+</pre>
+
+<p><strong>Fonctions disponibles :</strong></p>
+<div class="code-block">est_vide(arb)    → True si l'arbre est vide
+racine(arb)      → valeur de la racine
+gauche(arb)      → sous-arbre gauche
+droit(arb)       → sous-arbre droit</div>`,
+      questions: [
+        {
+          id: "q4_1a",
+          title: "Question 1a",
+          points: 0.5,
+          type: "text",
+          text: `Indiquer la <strong>racine</strong> de l'arbre B puis donner l'<strong>ensemble des valeurs des feuilles</strong> de cet arbre.`,
+          expectedKeywords: ["Lea", "Marc", "Claire", "Theo", "Marie", "Louis", "Anne", "Kevin"],
+          expectedAnswer: "Racine : Lea\nFeuilles : Marc, Lea, Claire, Theo, Marie, Louis, Anne, Kevin",
+          explanation: "La racine est le nœud au sommet. Les feuilles sont les nœuds sans enfant (niveau le plus bas de l'arbre)."
+        },
+        {
+          id: "q4_1b",
+          title: "Question 1b",
+          points: 0.5,
+          type: "code",
+          mode: "python",
+          placeholder: "def vainqueur(arb):",
+          text: `Proposer une fonction Python <code>vainqueur</code> prenant un arbre de compétition <code>arb</code> et renvoyant le <strong>nom du vainqueur</strong> du tournoi.`,
+          expectedKeywords: ["def", "vainqueur", "arb", "return", "racine"],
+          expectedAnswer: "def vainqueur(arb):\n    return racine(arb)",
+          explanation: "Le vainqueur du tournoi est toujours stocké à la racine de l'arbre binaire de compétition."
+        },
+        {
+          id: "q4_1c",
+          title: "Question 1c",
+          points: 0.5,
+          type: "code",
+          mode: "python",
+          placeholder: "def finale(arb):",
+          text: `Proposer une fonction Python <code>finale</code> prenant un arbre de compétition <code>arb</code> et renvoyant les <strong>deux finalistes</strong> sous forme de liste.`,
+          expectedKeywords: ["def", "finale", "arb", "gauche", "droit", "racine", "return", "["],
+          expectedAnswer: "def finale(arb):\n    return [racine(gauche(arb)), racine(droit(arb))]",
+          explanation: "Les finalistes sont les racines des sous-arbres gauche et droit de la racine principale."
+        },
+        {
+          id: "q4_2a",
+          title: "Question 2a",
+          points: 0.5,
+          type: "code",
+          mode: "python",
+          placeholder: "def occurrences(arb, nom):",
+          text: `Proposer une fonction Python récursive <code>occurrences(arb, nom)</code> qui renvoie le <strong>nombre d'occurrences</strong> du joueur <code>nom</code> dans l'arbre de compétition.`,
+          expectedKeywords: ["def", "occurrences", "arb", "nom", "est_vide", "racine", "gauche", "droit", "return", "0", "1", "+"],
+          expectedAnswer: "def occurrences(arb, nom):\n    if est_vide(arb):\n        return 0\n    elif racine(arb) == nom:\n        return 1 + occurrences(gauche(arb), nom) + occurrences(droit(arb), nom)\n    else:\n        return occurrences(gauche(arb), nom) + occurrences(droit(arb), nom)",
+          explanation: "On parcourt l'arbre récursivement : si la racine contient le nom, on ajoute 1 et on continue dans les sous-arbres."
+        },
+        {
+          id: "q4_2b",
+          title: "Question 2b",
+          points: 0.5,
+          type: "code",
+          mode: "python",
+          placeholder: "def a_gagne(arb, nom):",
+          text: `Proposer une fonction Python <code>a_gagne(arb, nom)</code> qui renvoie <code>True</code> si le joueur a gagné <strong>au moins un match</strong> (c'est-à-dire apparaît au moins 2 fois dans l'arbre).`,
+          expectedKeywords: ["def", "a_gagne", "arb", "nom", "return", "occurrences", ">", "1"],
+          expectedAnswer: "def a_gagne(arb, nom):\n    return occurrences(arb, nom) > 1",
+          explanation: "Un joueur qui a gagné au moins un match apparaît au moins 2 fois dans l'arbre (son nom + le nom du vaincu qu'il a battu remonté)."
+        },
+        {
+          id: "q4_3a",
+          title: "Question 3a",
+          points: 0.5,
+          type: "text",
+          text: `Expliquer pourquoi la fonction suivante renvoie une <strong>valeur erronée</strong> pour calculer le nombre de matchs joués par un joueur :<br><br><div class="code-block">def nombre_matchs(arb, nom):\n    return occurrences(arb, nom)</div>`,
+          expectedKeywords: ["vainqueur", "racine", "erroné", "Lea", "4", "3", "match", "apparaît", "feuille", "final"],
+          expectedAnswer: "La fonction renvoie le nombre d'occurrences, pas le nombre de matchs.\nExemple avec Lea (vainqueur) : occurrences(arb, 'Lea') = 4, mais Lea a joué seulement 3 matchs (quart, demi, finale). Le nom Lea apparaît une fois en feuille (comme simple participante) qui ne correspond à aucun match gagné.\n\nLe vainqueur apparaît occurrences-1 fois comme gagnant de match.",
+          explanation: "Le vainqueur apparaît une fois supplémentaire comme participant initial (feuille), ce qui fausse le compte."
+        },
+        {
+          id: "q4_3b",
+          title: "Question 3b",
+          points: 0.5,
+          type: "code",
+          mode: "python",
+          placeholder: "def nombre_matchs(arb, nom):",
+          text: `Proposer une <strong>correction</strong> de la fonction <code>nombre_matchs</code> pour qu'elle renvoie le bon nombre de matchs.`,
+          expectedKeywords: ["def", "nombre_matchs", "arb", "nom", "vainqueur", "occurrences", "-", "1", "return", "if"],
+          expectedAnswer: "def nombre_matchs(arb, nom):\n    if vainqueur(arb) == nom:\n        return occurrences(arb, nom) - 1\n    else:\n        return occurrences(arb, nom)",
+          explanation: "Si le joueur est le vainqueur, il a une occurrence de trop (sa présence initiale), donc on soustrait 1."
+        },
+        {
+          id: "q4_4",
+          title: "Question 4",
+          points: 0.5,
+          type: "code",
+          mode: "python",
+          placeholder: "def liste_joueurs(arb):",
+          text: `Compléter la fonction <code>liste_joueurs</code> qui renvoie la liste de tous les joueurs participants au tournoi (les feuilles) :<br><br><div class="code-block">def liste_joueurs(arb):\n    if est_vide(arb):\n        return ...\n    elif ... and ... :\n        return [racine(arb)]\n    else:\n        return ... + liste_joueurs(droit(arb))</div>`,
+          expectedKeywords: ["[]", "est_vide", "gauche", "droit", "liste_joueurs", "arb"],
+          expectedAnswer: "return []  (premier trou)\nelif est_vide(gauche(arb)) and est_vide(droit(arb)):  (deux trous)\nreturn liste_joueurs(gauche(arb))  (dernier trou)",
+          explanation: "Un nœud est une feuille si ses deux sous-arbres sont vides. On parcourt récursivement pour collecter toutes les feuilles."
+        }
+      ]
+    },
+    {
+      id: "ex5",
+      title: "Exercice 5",
+      points: 4,
+      theme: "Piles et Files",
+      context: `<p>On considère les structures de données abstraites <strong>Pile</strong> (LIFO) et <strong>File</strong> (FIFO).</p>
+
+<p><strong>Opérations sur une pile :</strong></p>
+<ul>
+<li><code>creer_pile_vide()</code> : crée une pile vide</li>
+<li><code>empiler(P, elt)</code> : empile un élément au sommet</li>
+<li><code>depiler(P)</code> : retire et renvoie l'élément au sommet</li>
+<li><code>est_vide(P)</code> : True si la pile est vide</li>
+<li><code>sommet(P)</code> : renvoie l'élément au sommet sans le retirer</li>
+</ul>
+
+<p><strong>Opérations sur une file :</strong></p>
+<ul>
+<li><code>creer_file_vide()</code> : crée une file vide</li>
+<li><code>enfiler(F, elt)</code> : ajoute un élément à la fin de la file</li>
+<li><code>defiler(F)</code> : retire et renvoie le premier élément de la file</li>
+<li><code>est_vide(F)</code> : True si la file est vide</li>
+</ul>
+
+<p><strong>File initiale F :</strong></p>
+<div class="code-block">Enfilement successif : "rouge", "vert", "jaune", "rouge", "jaune"\nF = [rouge, vert, jaune, rouge, jaune]  (jaune à l'arrière)</div>`,
+      questions: [
+        {
+          id: "q5_1a",
+          title: "Question 1a",
+          points: 0.25,
+          type: "text",
+          text: `Quel sera le contenu de la pile P et de la file F après l'exécution du programme suivant ?<br><br><div class="code-block">P = creer_pile_vide()\nwhile not(est_vide(F)):\n    empiler(P, defiler(F))</div>`,
+          expectedKeywords: ["vide", "rouge", "vert", "jaune", "sommet"],
+          expectedAnswer: "Pile P (du bas au sommet) : rouge, vert, jaune, rouge, jaune\n→ Sommet de P : \"jaune\"\n\nFile F : vide (tous les éléments ont été défilés)",
+          explanation: "On defile chaque élément de F et on l'empile dans P. F se vide, et P contient les 5 éléments dans l'ordre inverse (jaune au sommet)."
+        },
+        {
+          id: "q5_1b",
+          title: "Question 1b",
+          points: 0.75,
+          type: "code",
+          mode: "python",
+          placeholder: "def taille_file(F):",
+          text: `Écrire une fonction <code>taille_file(F)</code> qui renvoie le <strong>nombre d'éléments</strong> de la file F.<br><br><em>Contrainte importante : après l'exécution de la fonction, la file F doit avoir retrouvé son <strong>état d'origine</strong>.</em>`,
+          expectedKeywords: ["def", "taille_file", "F", "creer_file_vide", "enfiler", "defiler", "est_vide", "while", "return", "+"],
+          expectedAnswer: "def taille_file(F):\n    temp = creer_file_vide()\n    compteur = 0\n    while not est_vide(F):\n        elt = defiler(F)\n        compteur += 1\n        enfiler(temp, elt)\n    while not est_vide(temp):\n        enfiler(F, defiler(temp))\n    return compteur",
+          explanation: "On utilise une file temporaire pour stocker les éléments défilés, puis on les remet dans F pour la restaurer."
+        },
+        {
+          id: "q5_2",
+          title: "Question 2",
+          points: 1,
+          type: "code",
+          mode: "python",
+          placeholder: "def former_pile(F):",
+          text: `Écrire une fonction <code>former_pile(F)</code> qui renvoie une <strong>pile</strong> contenant les mêmes éléments que la file F, avec le <strong>premier élément sorti de la file au sommet</strong> de la pile.<br><br><em>Exemple : F = [a, b, c] → P (sommet en haut) : a au sommet, puis b, puis c au bas.</em>`,
+          expectedKeywords: ["def", "former_pile", "F", "creer_pile_vide", "empiler", "depiler", "est_vide", "while", "return", "defiler"],
+          expectedAnswer: "def former_pile(F):\n    P1 = creer_pile_vide()\n    P2 = creer_pile_vide()\n    while not est_vide(F):\n        empiler(P1, defiler(F))\n    while not est_vide(P1):\n        elt = depiler(P1)\n        empiler(P2, elt)\n    return P2",
+          explanation: "On transfère d'abord F→P1 (inversion), puis P1→P2 (deuxième inversion), ce qui remet dans l'ordre original avec le 1er au sommet."
+        },
+        {
+          id: "q5_3",
+          title: "Question 3",
+          points: 1,
+          type: "code",
+          mode: "python",
+          placeholder: "def nb_elements(F, elt):",
+          text: `Écrire une fonction <code>nb_elements(F, elt)</code> qui renvoie le <strong>nombre de fois</strong> où l'élément <code>elt</code> est présent dans la file F.<br><br><em>Contrainte : F doit retrouver son état d'origine après l'exécution.</em>`,
+          expectedKeywords: ["def", "nb_elements", "F", "elt", "creer_file_vide", "enfiler", "defiler", "est_vide", "while", "return", "==", "+"],
+          expectedAnswer: "def nb_elements(F, elt):\n    temp = creer_file_vide()\n    compteur = 0\n    while not est_vide(F):\n        e = defiler(F)\n        if e == elt:\n            compteur += 1\n        enfiler(temp, e)\n    while not est_vide(temp):\n        enfiler(F, defiler(temp))\n    return compteur",
+          explanation: "On parcourt F en comparant chaque élément à elt, on restaure F avec une file temporaire."
+        },
+        {
+          id: "q5_4",
+          title: "Question 4",
+          points: 1,
+          type: "code",
+          mode: "python",
+          placeholder: "def verifier_contenu(F, nb_rouge, nb_vert, nb_jaune):",
+          text: `Écrire une fonction <code>verifier_contenu(F, nb_rouge, nb_vert, nb_jaune)</code> qui renvoie <code>True</code> si le contenu de la file est compatible avec les quantités autorisées :<br><br>• Le nombre de "rouge" dans F doit être <strong>≤ nb_rouge</strong><br>• Le nombre de "vert" dans F doit être <strong>≤ nb_vert</strong><br>• Le nombre de "jaune" dans F doit être <strong>≤ nb_jaune</strong>`,
+          expectedKeywords: ["def", "verifier_contenu", "F", "nb_rouge", "nb_vert", "nb_jaune", "nb_elements", "return", "and", "<="],
+          expectedAnswer: "def verifier_contenu(F, nb_rouge, nb_vert, nb_jaune):\n    return nb_elements(F, \"rouge\") <= nb_rouge and nb_elements(F, \"vert\") <= nb_vert and nb_elements(F, \"jaune\") <= nb_jaune",
+          explanation: "On réutilise la fonction nb_elements pour compter chaque couleur et on vérifie que chaque count ne dépasse pas le maximum autorisé."
+        }
+      ]
+    }
+  ]
+};
+
+// ============================================================
+// STATE
+// ============================================================
+let studentEmail = "";
+let timerInterval = null;
+let timeRemaining = 210 * 60; // 210 minutes in seconds
+let startTime = null;
+let endTime = null;
+let submitted = false;
+let tabSwitchCount = 0;
+let autoSaveInterval = null;
+let editors = {}; // CodeMirror instances
+
+// ============================================================
+// START EXAM
+// ============================================================
+function startExam() {
+  const emailInput = document.getElementById("student-email").value.trim();
+  if (!emailInput || !emailInput.includes("@")) {
+    alert("Veuillez entrer une adresse e-mail valide.");
+    return;
+  }
+  studentEmail = emailInput;
+  startTime = new Date();
+
+  document.getElementById("welcome-screen").style.display = "none";
+  document.getElementById("exam-screen").style.display = "block";
+  document.getElementById("student-email-display").textContent = studentEmail;
+
+  // Request fullscreen
+  requestFullscreen();
+
+  // Generate exercises
+  generateExamUI();
+
+  // Start timer
+  startTimer();
+
+  // Start auto-save
+  autoSaveInterval = setInterval(autoSave, 30000);
+
+  // Anti-cheat
+  setupAntiCheat();
+
+  // Restore saved answers
+  restoreAnswers();
+}
+
+function requestFullscreen() {
+  try {
+    const el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    else if (el.msRequestFullscreen) el.msRequestFullscreen();
+  } catch(e) {
+    // Fullscreen not supported
+  }
+}
+
+// ============================================================
+// TIMER
+// ============================================================
+function startTimer() {
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeRemaining--;
+    updateTimerDisplay();
+    if (timeRemaining <= 0) {
+      clearInterval(timerInterval);
+      submitExam();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const h = Math.floor(timeRemaining / 3600);
+  const m = Math.floor((timeRemaining % 3600) / 60);
+  const s = timeRemaining % 60;
+  const display = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const timerEl = document.getElementById("timer-display");
+  timerEl.textContent = display;
+
+  const timerContainer = document.getElementById("timer");
+  if (timeRemaining <= 1800) { // 30 min
+    timerContainer.classList.add("warning");
+  } else {
+    timerContainer.classList.remove("warning");
+  }
+}
+
+// ============================================================
+// GENERATE EXAM UI
+// ============================================================
+function generateExamUI() {
+  const tabNav = document.getElementById("tab-nav");
+  const content = document.getElementById("exercise-content");
+
+  // Generate tabs
+  examData.exercises.forEach((ex, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "tab-btn" + (idx === 0 ? " active" : "");
+    btn.dataset.exercise = ex.id;
+    btn.innerHTML = `${ex.title} <span class="tab-points">${ex.points} points</span>`;
+    btn.onclick = () => switchTab(ex.id);
+    tabNav.appendChild(btn);
+  });
+
+  // Generate exercise panels
+  examData.exercises.forEach((ex, idx) => {
+    const panel = document.createElement("div");
+    panel.className = "exercise-panel" + (idx === 0 ? " active" : "");
+    panel.id = `panel-${ex.id}`;
+
+    // Exercise header
+    let html = `
+      <div class="exercise-header">
+        <h2>${ex.title} — ${ex.theme}</h2>
+        <div class="exercise-theme">Barème : ${ex.points} points</div>
+      </div>
+      <div class="context-box">
+        <h3>📖 Contexte</h3>
+        ${ex.context}
+      </div>
+    `;
+
+    // Questions
+    ex.questions.forEach(q => {
+      const editorId = `editor-${q.id}`;
+      const textareaId = `answer-${q.id}`;
+
+      html += `
+        <div class="question-card" id="card-${q.id}">
+          <div class="question-header">
+            <div class="question-title">${q.title}</div>
+            <div class="question-points">${q.points} pt${q.points !== 1 ? 's' : ''}</div>
+          </div>
+          <div class="question-text">${q.text}</div>
+      `;
+
+      if (q.type === "code") {
+        html += `
+          <div class="code-editor-wrapper">
+            <textarea id="${editorId}" placeholder="${q.placeholder || ''}"></textarea>
+          </div>
+        `;
+      } else {
+        html += `
+          <textarea class="answer-textarea" id="${textareaId}" placeholder="Votre réponse..." rows="4"></textarea>
+        `;
+      }
+
+      html += `</div>`;
+    });
+
+    panel.innerHTML = html;
+    content.appendChild(panel);
+  });
+
+  // Initialize CodeMirror editors after DOM is ready
+  setTimeout(initCodeMirrorEditors, 100);
+}
+
+function initCodeMirrorEditors() {
+  examData.exercises.forEach(ex => {
+    ex.questions.forEach(q => {
+      if (q.type === "code") {
+        const editorId = `editor-${q.id}`;
+        const textarea = document.getElementById(editorId);
+        if (textarea) {
+          const mode = q.mode || "python";
+          editors[q.id] = CodeMirror.fromTextArea(textarea, {
+            mode: mode === "sql" ? "text/x-sql" : "text/x-python",
+            theme: "dracula",
+            lineNumbers: true,
+            indentUnit: 4,
+            tabSize: 4,
+            lineWrapping: true,
+            matchBrackets: true,
+            autoCloseBrackets: true,
+            placeholder: q.placeholder || ""
+          });
+        }
+      }
+    });
+  });
+}
+
+function switchTab(exerciseId) {
+  // Update tabs
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.exercise === exerciseId);
+  });
+  // Update panels
+  document.querySelectorAll(".exercise-panel").forEach(panel => {
+    panel.classList.toggle("active", panel.id === `panel-${exerciseId}`);
+  });
+}
+
+// ============================================================
+// AUTO-SAVE
+// ============================================================
+function autoSave() {
+  if (submitted) return;
+  const answers = collectAnswers();
+  localStorage.setItem(`nsi_exam_answers_${studentEmail}`, JSON.stringify(answers));
+  localStorage.setItem(`nsi_exam_time_${studentEmail}`, JSON.stringify({
+    timeRemaining,
+    startTime: startTime.toISOString(),
+    email: studentEmail
+  }));
+
+  const indicator = document.getElementById("save-indicator");
+  indicator.textContent = "💾 Sauvegarde en cours...";
+  indicator.className = "save-indicator saving";
+  setTimeout(() => {
+    indicator.textContent = "💾 Sauvegardé";
+    indicator.className = "save-indicator saved";
+  }, 1500);
+}
+
+function restoreAnswers() {
+  const saved = localStorage.getItem(`nsi_exam_answers_${studentEmail}`);
+  const savedTime = localStorage.getItem(`nsi_exam_time_${studentEmail}`);
+  if (saved) {
+    try {
+      const answers = JSON.parse(saved);
+      // Restore textarea answers
+      Object.keys(answers).forEach(qId => {
+        if (editors[qId]) {
+          editors[qId].setValue(answers[qId]);
+        } else {
+          const textarea = document.getElementById(`answer-${qId}`);
+          if (textarea) textarea.value = answers[qId];
+        }
+      });
+    } catch(e) {}
+  }
+  if (savedTime) {
+    try {
+      const timeData = JSON.parse(savedTime);
+      timeRemaining = timeData.timeRemaining || (210 * 60);
+      startTime = new Date(timeData.startTime);
+    } catch(e) {}
+  }
+}
+
+function collectAnswers() {
+  const answers = {};
+  examData.exercises.forEach(ex => {
+    ex.questions.forEach(q => {
+      if (editors[q.id]) {
+        answers[q.id] = editors[q.id].getValue();
+      } else {
+        const el = document.getElementById(`answer-${q.id}`);
+        answers[q.id] = el ? el.value : "";
+      }
+    });
+  });
+  return answers;
+}
+
+// ============================================================
+// ANTI-CHEAT
+// ============================================================
+function setupAntiCheat() {
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && !submitted) {
+      tabSwitchCount++;
+      if (tabSwitchCount >= 2) {
+        // Auto-submit on second switch
+        showWarning("Vous avez changé d'onglet 2 fois. Votre copie va être soumise automatiquement.", true);
+        setTimeout(() => submitExam(), 3000);
+      } else {
+        showWarning("Premier avertissement ! Tout changement d'onglet est surveillé. Un deuxième changement entraînera la soumission automatique de votre copie.", false);
+      }
+    }
+  });
+
+  // Detect fullscreen exit
+  document.addEventListener("fullscreenchange", () => {
+    if (!document.fullscreenElement && !submitted) {
+      // Re-request fullscreen after a short delay
+      setTimeout(requestFullscreen, 1000);
+    }
+  });
+}
+
+function showWarning(message, isAutoSubmit) {
+  const overlay = document.getElementById("warning-overlay");
+  document.getElementById("warning-message").textContent = message;
+  overlay.classList.add("show");
+  if (!isAutoSubmit) {
+    overlay.querySelector(".btn").style.display = "inline-flex";
+  } else {
+    overlay.querySelector(".btn").style.display = "none";
+  }
+}
+
+function dismissWarning() {
+  document.getElementById("warning-overlay").classList.remove("show");
+  requestFullscreen();
+}
+
+// ============================================================
+// SUBMIT EXAM
+// ============================================================
+function confirmSubmit() {
+  const confirmed = confirm("⚠️ Êtes-vous sûr de vouloir soumettre votre copie ?\n\nCette action est irréversible.");
+  if (confirmed) {
+    submitExam();
+  }
+}
+
+function submitExam() {
+  if (submitted) return;
+  submitted = true;
+  endTime = new Date();
+
+  // Clear intervals
+  clearInterval(timerInterval);
+  clearInterval(autoSaveInterval);
+
+  // Show loading
+  document.getElementById("loading-overlay").classList.add("show");
+
+  setTimeout(() => {
+    const answers = collectAnswers();
+    const results = gradeExam(answers);
+
+    document.getElementById("exam-screen").style.display = "none";
+    document.getElementById("results-screen").style.display = "block";
+
+    renderResults(results, answers);
+    document.getElementById("loading-overlay").classList.remove("show");
+
+    // Clear saved data
+    localStorage.removeItem(`nsi_exam_answers_${studentEmail}`);
+    localStorage.removeItem(`nsi_exam_time_${studentEmail}`);
+  }, 1500);
+}
+
+// ============================================================
+// GRADING
+// ============================================================
+function normalizeText(text) {
+  return text.toLowerCase()
+    .replace(/[éèêë]/g, "e")
+    .replace(/[àâä]/g, "a")
+    .replace(/[ùûü]/g, "u")
+    .replace(/[îï]/g, "i")
+    .replace(/[ôö]/g, "o")
+    .replace(/[ç]/g, "c")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeCode(text) {
+  return text.toLowerCase()
+    .replace(/\s+/g, " ")
+    .replace(/[^a-z0-9\s_\-><=!#,"'*.()\[\]]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function gradeQuestion(question, answer) {
+  if (!answer || answer.trim() === "") {
+    return { score: 0, matchedKeywords: [], totalKeywords: question.expectedKeywords.length, correct: false };
+  }
+
+  let normalized, keywords;
+
+  if (question.type === "code") {
+    normalized = normalizeCode(answer);
+    keywords = question.expectedKeywords.map(k => k.toLowerCase());
+  } else {
+    normalized = normalizeText(answer);
+    keywords = question.expectedKeywords.map(k => normalizeText(k));
+  }
+
+  let matched = 0;
+  const matchedKeywords = [];
+
+  keywords.forEach(kw => {
+    if (normalized.includes(kw)) {
+      matched++;
+      matchedKeywords.push(kw);
+    }
+  });
+
+  const total = keywords.length;
+  // Need at least 40% of keywords to get any points
+  const ratio = total > 0 ? matched / total : 0;
+  let score = 0;
+
+  if (ratio >= 0.7) {
+    score = question.points;
+  } else if (ratio >= 0.4) {
+    score = question.points * ratio;
+  } else if (ratio > 0) {
+    score = question.points * ratio * 0.5;
+  }
+
+  // Round to 2 decimal places
+  score = Math.round(score * 100) / 100;
+
+  const correct = ratio >= 0.7;
+
+  return {
+    score,
+    matchedKeywords,
+    totalKeywords: total,
+    matchedCount: matched,
+    correct,
+    ratio
+  };
+}
+
+function gradeExam(answers) {
+  let totalScore = 0;
+  const exerciseResults = [];
+
+  examData.exercises.forEach(ex => {
+    let exScore = 0;
+    const questionResults = [];
+
+    ex.questions.forEach(q => {
+      const answer = answers[q.id] || "";
+      const result = gradeQuestion(q, answer);
+      exScore += result.score;
+      questionResults.push({
+        question: q,
+        answer: answer,
+        ...result
+      });
+    });
+
+    totalScore += exScore;
+    exerciseResults.push({
+      exercise: ex,
+      score: Math.round(exScore * 100) / 100,
+      maxScore: ex.points,
+      questions: questionResults
+    });
+  });
+
+  totalScore = Math.round(totalScore * 100) / 100;
+
+  return {
+    totalScore,
+    maxScore: 20,
+    percentage: Math.round((totalScore / 20) * 100 * 10) / 10,
+    exerciseResults,
+    appreciation: getAppreciation(totalScore)
+  };
+}
+
+function getAppreciation(score) {
+  if (score >= 16) return { text: "Excellent", class: "excellent", emoji: "🏆" };
+  if (score >= 14) return { text: "Bien", class: "bien", emoji: "👏" };
+  if (score >= 12) return { text: "Assez bien", class: "assez-bien", emoji: "👍" };
+  if (score >= 10) return { text: "Passable", class: "passable", emoji: "📚" };
+  return { text: "Insuffisant", class: "insuffisant", emoji: "📝" };
+}
+
+function formatTime(date) {
+  return date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+}
+
+function getElapsedTimeString() {
+  if (!startTime || !endTime) return "N/A";
+  const diff = Math.floor((endTime - startTime) / 1000);
+  const h = Math.floor(diff / 3600);
+  const m = Math.floor((diff % 3600) / 60);
+  const s = diff % 60;
+  return `${h}h ${String(m).padStart(2,'0')}min ${String(s).padStart(2,'0')}s`;
+}
+
+// ============================================================
+// RENDER RESULTS
+// ============================================================
+function renderResults(results, answers) {
+  const container = document.getElementById("results-container");
+  const app = results.appreciation;
+
+  let html = `
+    <div class="results-header">
+      <h1>🎓 Résultats — Baccalauréat NSI 2021</h1>
+      <div class="results-meta">
+        <span>👤 ${studentEmail}</span>
+        <span>🕐 Début : ${formatTime(startTime)}</span>
+        <span>🕐 Fin : ${formatTime(endTime)}</span>
+        <span>⏱ Temps : ${getElapsedTimeString()}</span>
+      </div>
+      <div class="score-display">
+        <span class="score-number">${results.totalScore}</span>
+        <span class="score-total">/ ${results.maxScore}</span>
+      </div>
+      <div class="score-percentage">${results.percentage}%</div>
+      <div class="appreciation ${app.class}">${app.emoji} ${app.text}</div>
+      <div class="results-actions">
+        <button class="btn btn-secondary" onclick="exportPDF()">📄 Exporter en PDF</button>
+      </div>
+    </div>
+  `;
+
+  // Exercise corrections
+  results.exerciseResults.forEach(exResult => {
+    const ex = exResult.exercise;
+    const scorePercent = Math.round((exResult.score / ex.maxScore) * 100);
+
+    html += `
+      <div class="correction-exercise">
+        <div class="correction-exercise-header">
+          <h3>${ex.title} — ${ex.theme}</h3>
+          <div class="correction-exercise-score">${exResult.score} / ${ex.maxScore} (${scorePercent}%)</div>
+        </div>
+    `;
+
+    exResult.questions.forEach(qResult => {
+      const q = qResult.question;
+      const scoreClass = qResult.correct ? "correct" : (qResult.score > 0 ? "partial" : "incorrect");
+      const icon = qResult.correct ? "✅" : (qResult.score > 0 ? "⚠️" : "❌");
+      const statusText = qResult.correct ? "Correct" : (qResult.score > 0 ? "Partiel" : "Incorrect");
+
+      const escapedAnswer = (qResult.answer || "(vide)")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+      const escapedExpected = (q.expectedAnswer || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+      const escapedExplanation = (q.explanation || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+      html += `
+        <div class="correction-question">
+          <div class="correction-q-header">
+            <span class="correction-q-title">${icon} ${q.title} (${q.points} pt${q.points !== 1 ? 's' : ''})</span>
+            <span class="correction-q-score ${scoreClass}">${statusText} — ${qResult.score} / ${q.points}</span>
+          </div>
+          <div class="correction-detail">
+            <div class="answer-label">📝 Votre réponse :</div>
+            <div class="answer-content">${escapedAnswer}</div>
+            <div class="answer-label">✅ Réponse attendue :</div>
+            <div class="expected-answer">${escapedExpected}</div>
+            <div class="answer-label">💡 Mots-clés trouvés : ${qResult.matchedCount} / ${qResult.totalKeywords}</div>
+            <div class="explanation">💡 ${escapedExplanation}</div>
+          </div>
+        </div>
+      `;
+    });
+
+    html += `</div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+// ============================================================
+// PDF EXPORT
+// ============================================================
+async function exportPDF() {
+  const btn = event.target;
+  btn.textContent = "⏳ Génération en cours...";
+  btn.disabled = true;
+
+  try {
+    const container = document.getElementById("results-container");
+
+    // Create a clone for PDF
+    const clone = container.cloneNode(true);
+    clone.style.width = "210mm";
+    clone.style.padding = "10mm";
+    clone.style.position = "absolute";
+    clone.style.left = "-9999px";
+    clone.style.top = "0";
+    clone.style.background = "white";
+    document.body.appendChild(clone);
+
+    // Hide PDF button in clone
+    const buttons = clone.querySelectorAll(".results-actions");
+    buttons.forEach(b => b.style.display = "none");
+
+    const canvas = await html2canvas(clone, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: "#ffffff"
+    });
+
+    document.body.removeChild(clone);
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const imgWidth = 190;
+    const pageHeight = 277;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 10;
+
+    pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 10, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight + 10;
+      pdf.addPage();
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 10, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    pdf.save(`correction_nsi_${studentEmail.replace(/[@.]/g, '_')}.pdf`);
+  } catch (err) {
+    console.error("PDF generation error:", err);
+    alert("Erreur lors de la génération du PDF. Veuillez réessayer.");
+  }
+
+  btn.textContent = "📄 Exporter en PDF";
+  btn.disabled = false;
+}
+
+// ============================================================
+// KEYBOARD SHORTCUT - prevent copy/paste during exam
+// ============================================================
+document.addEventListener("keydown", (e) => {
+  if (submitted) return;
+  // Only prevent in exam screen
+  if (document.getElementById("exam-screen").style.display !== "none") {
+    // Allow normal typing in inputs and editors
+    if (e.ctrlKey && (e.key === "c" || e.key === "v")) {
+      // Allow copy/paste within the exam for code editing
+    }
+  }
+});
+
+// Prevent right-click during exam
+document.addEventListener("contextmenu", (e) => {
+  if (!submitted && document.getElementById("exam-screen").style.display !== "none") {
+    // Allow right-click for CodeMirror context menu
+  }
+});
+
+// Handle Enter key on email input
+document.getElementById("student-email").addEventListener("keypress", (e) => {
+  if (e.key === "Enter") startExam();
+});
+</script>
+
+</body>
+</html>
